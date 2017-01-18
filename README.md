@@ -1,4 +1,4 @@
-[![License](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/wisespace-io/yubico-rs/blob/master/LICENSE)
+[![Build Status](https://travis-ci.org/wisespace-io/yubico-rs.png?branch=master)](https://travis-ci.org/wisespace-io/yubico-rs)
 [![Crates.io](https://img.shields.io/crates/v/yubico.svg)](https://crates.io/crates/yubico)
 
 # Yubico
