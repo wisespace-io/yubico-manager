@@ -44,7 +44,7 @@ impl error::Error for YubicoError {
         }
     }
 
-    fn cause(&self) -> Option<&error::Error> {
+    fn cause(&self) -> Option<& dyn error::Error> {
         match *self {
             YubicoError::UsbError(ref err) => Some(err),                    
             _ => None

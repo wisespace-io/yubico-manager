@@ -90,8 +90,8 @@ impl Yubico {
 
         match manager::open_device(&mut self.context, conf.vendor_id, conf.product_id) {
             Ok(mut handle) => {
-                let mut challenge = [0; 64];
-                let mut command = Command::DeviceSerial;
+                let challenge = [0; 64];
+                let command = Command::DeviceSerial;
 
                 let d = Frame::new(challenge, command); // FixMe: do not need a challange
                 let mut buf = [0; 8];
