@@ -1,21 +1,18 @@
 # Yubico &emsp; [![Build Status]][travis] [![Latest Version]][crates.io] [![MIT licensed]][MIT] [![Apache-2.0 licensed]][APACHE]
 
-[Build Status]: https://travis-ci.org/wisespace-io/yubico-rs.png?branch=master
-[travis]: https://travis-ci.org/wisespace-io/yubico-rs
-[Latest Version]: https://img.shields.io/crates/v/yubico.svg
-[crates.io]: https://crates.io/crates/yubico
+[Build Status]: https://travis-ci.org/wisespace-io/yubico-manager.png?branch=master
+[travis]: https://travis-ci.org/wisespace-io/yubico-manager
+[Latest Version]: https://img.shields.io/crates/v/yubico-manager.svg
+[crates.io]: https://crates.io/crates/yubico-manager
 [MIT licensed]: https://img.shields.io/badge/License-MIT-blue.svg
 [MIT]: ./LICENSE-MIT
 [Apache-2.0 licensed]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
 [APACHE]: ./LICENSE-APACHE
 
-**Enables integration with the Yubico validation platform, so you can use Yubikey's one-time-password in your Rust application, allowing a user to authenticate via Yubikey.**
-
 ---
 
 ## Current features
 
-- [X] Yubikey client API library, [validation protocol version 2.0](https://developers.yubico.com/yubikey-val/Validation_Protocol_V2.0.html).
 - [X] [Challenge-Response](https://wiki.archlinux.org/index.php/yubikey#Function_and_Application_of_Challenge-Response), YubiKey 2.2 and later supports HMAC-SHA1 or Yubico challenge-response operations.
 - [x] Configuration.
 
@@ -25,67 +22,7 @@ Add this to your Cargo.toml
 
 ```toml
 [dependencies]
-yubico = "0.6"
-```
-
-The following are a list of Cargo features that can be enabled or disabled:
-
-- online (enabled by default): Provides TLS support via Reqwest to connect over HTTPS in order to validate OTP against the yubico/custom servers. On Linux, it will use OpenSSL 1.1.
-- online-tokio (enabled by default): Provides integration to Tokio using futures.
-- usb (enabled by default): Provides USB support via libusb. It can safely be disabled when using the library to do only OTP with servers.
-
-You can enable or disable them using the example below:
-
-  ```toml
-  [dependencies.yubico]
-  version = "0.6"
-  # don't include the default features (online)
-  default-features = false
-  # cherry-pick individual features
-  features = []
-  ```
-
-[Request your api key](https://upgrade.yubico.com/getapikey/).
-
-### OTP with Default Servers
-
-```rust
-extern crate yubico;
-
-use yubico::config::*;
-use yubico::verify;
-
-fn main() {
-   let config = Config::default()
-       .set_client_id("CLIENT_ID")
-       .set_key("API_KEY");
-
-   match verify("OTP", config) {
-      Ok(answer) => println!("{}", answer),
-      Err(e) => println!("Error: {}", e),
-   }
-}
-```
-
-## OTP with custom API servers
-
-```rust
-extern crate yubico;
-
-use yubico::verify;
-use yubico::config::*;
-
-fn main() {
-   let config = Config::default()
-       .set_client_id("CLIENT_ID")
-       .set_key("API_KEY")
-       .set_api_hosts(vec!["https://api.example.com/verify".into()]);
-
-   match verify("OTP", config) {
-      Ok(answer) => println!("{}", answer),
-      Err(e) => println!("Error: {}", e),
-   }
-}
+yubico_manager = "0.6"
 ```
 
 ### Configure Yubikey (HMAC-SHA1 mode)
@@ -95,12 +32,12 @@ Alternatively you can configure the yubikey with the official [Yubikey Personali
 
 ```rust
 extern crate rand;
-extern crate yubico;
+extern crate yubico_manager;
 
-use yubico::{Yubico};
-use yubico::config::{Config, Command};
-use yubico::configure::{ DeviceModeConfig };
-use yubico::hmacmode::{ HmacKey };
+use yubico_manager::{Yubico};
+use yubico_manager::config::{Config, Command};
+use yubico_manager::configure::{ DeviceModeConfig };
+use yubico_manager::hmacmode::{ HmacKey };
 use rand::{thread_rng, Rng};
 use rand::distributions::{Alphanumeric};
 
@@ -143,11 +80,11 @@ Configure the yubikey with [Yubikey Personalization GUI](https://developers.yubi
 
 ```rust
 extern crate hex;
-extern crate yubico;
+extern crate yubico_manager;
 
 use std::ops::Deref;
-use yubico::{Yubico};
-use yubico::config::{Config, Slot, Mode};
+use yubico_manager::{Yubico};
+use yubico_manager::config::{Config, Slot, Mode};
 
 fn main() {
    let mut yubi = Yubico::new();
