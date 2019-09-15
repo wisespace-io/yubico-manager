@@ -1,9 +1,9 @@
-extern crate yubico;
+extern crate yubico_manager;
 
-use yubico::{Yubico};
-use yubico::config::{Config, Command};
-use yubico::configure::{ DeviceModeConfig };
-use yubico::otpmode::{ Aes128Key };
+use yubico_manager::{Yubico};
+use yubico_manager::configure::{ DeviceModeConfig };
+use yubico_manager::otpmode::{ Aes128Key };
+use yubico_manager::config::{Config, Command};
 
 fn main() {
    let mut yubi = Yubico::new();

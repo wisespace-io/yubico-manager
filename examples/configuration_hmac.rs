@@ -1,10 +1,10 @@
 extern crate rand;
-extern crate yubico;
+extern crate yubico_manager;
 
-use yubico::{Yubico};
-use yubico::config::{Config, Command};
-use yubico::configure::{ DeviceModeConfig };
-use yubico::hmacmode::{ HmacKey };
+use yubico_manager::{Yubico};
+use yubico_manager::config::{Config, Command};
+use yubico_manager::configure::{ DeviceModeConfig };
+use yubico_manager::hmacmode::{ HmacKey };
 use rand::{thread_rng, Rng};
 use rand::distributions::{Alphanumeric};
 

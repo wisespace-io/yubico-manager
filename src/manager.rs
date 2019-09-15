@@ -5,7 +5,6 @@ use sec::{ crc16 };
 use yubicoerror::YubicoError;
 use libusb::{request_type, Direction, RequestType, Recipient, Context, DeviceHandle};
 
-#[allow(dead_code)]
 const DATA_SIZE: usize = 64;
 const HID_GET_REPORT: u8 = 0x01;
 const HID_SET_REPORT: u8 = 0x09;

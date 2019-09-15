@@ -1,8 +1,5 @@
-use sha1::{Digest, Sha1};
-use hmac::Hmac;
-use crypto_mac::{Mac, MacResult};
-use yubicoerror::YubicoError;
-use base64::{decode};
+use sha1::{Sha1};
+use hmac::{Hmac, Mac};
 use hmacmode::HmacKey;
 
 const PRESET_VALUE: u16 = 0xFFFF;
@@ -11,19 +8,6 @@ const SHA1_DIGEST_SIZE: usize = 20;
 pub const CRC_RESIDUAL_OK: u16 = 0xf0b8;
 
 type HmacSha1 = Hmac<Sha1>;
-
-//  1. Apply the HMAC-SHA-1 algorithm on the line as an octet string using the API key as key
-pub fn build_signature(key: &[u8], input: &[u8]) -> Result<MacResult<<sha1::Sha1 as Digest>::OutputSize>, YubicoError>
-{
-    let decoded_key = decode(key)?;
-
-    let mut hmac = match HmacSha1::new_varkey(&decoded_key) {
-        Ok(h) => h,
-        Err(_) => return Err(YubicoError::InvalidKeyLength)
-    };
-    hmac.input(input);
-    Ok(hmac.result())
-}
 
 pub fn hmac_sha1(key: &HmacKey, data: &[u8]) -> [u8; SHA1_DIGEST_SIZE] {
     let mut hmac = HmacSha1::new_varkey(&key.0).unwrap();
