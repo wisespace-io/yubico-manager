@@ -1,4 +1,4 @@
-# Yubico Manager [![Build Status]][travis] [![Latest Version]][crates.io] [![MIT licensed]][MIT] [![Apache-2.0 licensed]][APACHE]
+# Yubico Manager &emsp; [![Build Status]][travis] [![Latest Version]][crates.io] [![MIT licensed]][MIT] [![Apache-2.0 licensed]][APACHE]
 
 [Build Status]: https://travis-ci.org/wisespace-io/yubico-manager.png?branch=master
 [travis]: https://travis-ci.org/wisespace-io/yubico-manager
@@ -8,6 +8,8 @@
 [MIT]: ./LICENSE-MIT
 [Apache-2.0 licensed]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
 [APACHE]: ./LICENSE-APACHE
+
+**Yubikey Challenge-Response & Configuration.**
 
 ---
 
