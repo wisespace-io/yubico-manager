@@ -1,0 +1,32 @@
+[package]
+name = "yubico_manager"
+version = "0.6.1"
+authors = ["Flavio Oliveira <flavio@wisespace.io>", "Pierre-Étienne Meunier <pe@coturnix.fr>"]
+
+description = "Yubikey client API library"
+license = "MIT OR Apache-2.0"
+keywords = ["yubikey", "authentication", "encryption", "OTP", "Challenge-Response"]
+categories = ["authentication"]
+repository = "https://github.com/wisespace-io/yubico-rs"
+readme = "README.md"
+
+[badges]
+travis-ci = { repository = "wisespace-io/yubico-manager" }
+
+[lib]
+name = "yubico_manager"
+path = "src/lib.rs"
+
+[dependencies]
+rand = "0.6"
+bitflags = "1.0.3"
+libusb = "0.2"
+structure = "0.1"
+
+aes-soft = "^0.3"
+block-modes = "^0.3"
+hmac = "^0.7"
+sha-1 = "^0.8"
+
+[dev-dependencies]
+hex = "0.3.2"
