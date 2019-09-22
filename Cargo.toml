@@ -3,9 +3,9 @@ name = "yubico_manager"
 version = "0.6.1"
 authors = ["Flavio Oliveira <flavio@wisespace.io>", "Pierre-Étienne Meunier <pe@coturnix.fr>"]
 
-description = "Yubikey client API library"
+description = "Yubikey Challenge-Response & Configuration"
 license = "MIT OR Apache-2.0"
-keywords = ["yubikey", "authentication", "encryption", "OTP", "Challenge-Response"]
+keywords = ["yubikey", "authentication", "encryption", "configuration", "Challenge-Response"]
 categories = ["authentication"]
 repository = "https://github.com/wisespace-io/yubico-rs"
 readme = "README.md"
@@ -20,7 +20,7 @@ path = "src/lib.rs"
 [dependencies]
 rand = "0.6"
 bitflags = "1.0.3"
-libusb = "0.2"
+libusb = "0.3"
 structure = "0.1"
 
 aes-soft = "^0.3"

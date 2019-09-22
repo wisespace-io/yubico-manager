@@ -25,7 +25,7 @@ pub fn open_device(context: &mut Context, vid: u16, pid: u16) -> Result<DeviceHa
         }
     };
 
-    for mut device in devices.iter() {
+    for device in devices.iter() {
         let device_desc = match device.device_descriptor() {
             Ok(device) => device,
             Err(_) => {

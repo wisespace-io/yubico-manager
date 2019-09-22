@@ -53,7 +53,7 @@ impl Yubico {
     }
 
     pub fn find_yubikey(&mut self) -> Result<Device> {
-        for mut device in self.context.devices().unwrap().iter() {
+        for device in self.context.devices().unwrap().iter() {
             let descr = device.device_descriptor().unwrap();
             if descr.vendor_id() == VENDOR_ID {
                 let device = Device {
