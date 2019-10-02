@@ -7,7 +7,7 @@ description = "Yubikey Challenge-Response & Configuration"
 license = "MIT OR Apache-2.0"
 keywords = ["yubikey", "authentication", "encryption", "configuration", "Challenge-Response"]
 categories = ["authentication"]
-repository = "https://github.com/wisespace-io/yubico-rs"
+repository = "https://github.com/wisespace-io/yubico-manager"
 readme = "README.md"
 
 [badges]
