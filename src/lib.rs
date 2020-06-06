@@ -79,6 +79,7 @@ impl Yubico {
 
                 manager::write_frame(&mut handle, &d)?;
                 manager::wait(&mut handle, |f| !f.contains(Flags::SLOT_WRITE_FLAG), &mut buf)?;
+                manager::close_device(handle)?;
 
                 Ok(())
             },
@@ -102,6 +103,7 @@ impl Yubico {
                 // Read the response.
                 let mut response = [0; 36];
                 manager::read_response(&mut handle, &mut response)?;
+                manager::close_device(handle)?;
 
                 // Check response.
                 if crc16(&response[..6]) != CRC_RESIDUAL_OK {
@@ -142,6 +144,7 @@ impl Yubico {
                 // Read the response.
                 let mut response = [0; 36];
                 manager::read_response(&mut handle, &mut response)?;
+                manager::close_device(handle)?;
 
                 // Check response.
                 if crc16(&response[..22]) != CRC_RESIDUAL_OK {
@@ -177,6 +180,7 @@ impl Yubico {
                 manager::wait(&mut handle, |f| !f.contains(manager::Flags::SLOT_WRITE_FLAG), &mut buf)?;
                 manager::write_frame(&mut handle, &d)?;
                 manager::read_response(&mut handle, &mut response)?;
+                manager::close_device(handle)?;
 
                 // Check response.
                 if crc16(&response[..18]) != CRC_RESIDUAL_OK {
