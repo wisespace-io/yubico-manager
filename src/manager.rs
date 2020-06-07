@@ -67,6 +67,12 @@ pub fn open_device(context: &mut Context, vid: u16, pid: u16) -> Result<DeviceHa
     Err(YubicoError::DeviceNotFound)
 }
 
+pub fn close_device(mut handle: DeviceHandle) -> Result<(), YubicoError> {
+    handle.release_interface(0)?;
+    handle.attach_kernel_driver(0)?;
+    Ok(())
+}
+
 pub fn wait<F: Fn(Flags) -> bool>(handle: &mut DeviceHandle, f: F, buf: &mut [u8]) -> Result<(), YubicoError>  {
     loop {
         read(handle, buf)?;
