@@ -50,7 +50,9 @@ pub fn open_device(context: &mut Context, vid: u16, pid: u16) -> Result<DeviceHa
                                 _ => continue
                             };
 
-                            handle.set_active_configuration(config.number())?;
+                            if handle.active_configuration()? != config.number() {
+                                handle.set_active_configuration(config.number())?;
+                            }
                             handle.claim_interface(usb_int.interface_number())?;
                         }
                     }
