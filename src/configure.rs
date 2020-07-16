@@ -1,7 +1,7 @@
 use std;
-use hmacmode::{ HmacKey };
-use otpmode::{ Aes128Key };
-use sec::{ crc16 };
+use hmacmode::HmacKey;
+use otpmode::Aes128Key;
+use sec::crc16;
 use manager::Frame;
 use config::Command;
 

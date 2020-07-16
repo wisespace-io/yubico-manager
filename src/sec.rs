@@ -1,5 +1,5 @@
 use sha1::{Sha1};
-use hmac::{Hmac, Mac};
+use hmac::{Hmac, Mac, NewMac};
 use hmacmode::HmacKey;
 
 const PRESET_VALUE: u16 = 0xFFFF;
@@ -11,10 +11,11 @@ type HmacSha1 = Hmac<Sha1>;
 
 pub fn hmac_sha1(key: &HmacKey, data: &[u8]) -> [u8; SHA1_DIGEST_SIZE] {
     let mut hmac = HmacSha1::new_varkey(&key.0).unwrap();
-    hmac.input(data);
+    hmac.update(data);
+    let result = hmac.finalize();
 
     let mut code = [0; SHA1_DIGEST_SIZE];
-    code.copy_from_slice(hmac.result().code().as_slice());
+    code.copy_from_slice(result.into_bytes().as_slice());
 
     code
 }

@@ -17,14 +17,14 @@ pub mod config;
 pub mod configure;
 pub mod yubicoerror;
 
-use aes::block_cipher_trait::generic_array::GenericArray;
+use aes::block_cipher::generic_array::GenericArray;
 
 use config::Command;
-use configure::{ DeviceModeConfig };
-use hmacmode::{ Hmac };
-use otpmode::{ Aes128Block };
-use sec::{ CRC_RESIDUAL_OK, crc16 };
-use manager::{ Frame, Flags };
+use configure::DeviceModeConfig;
+use hmacmode::Hmac;
+use otpmode::Aes128Block;
+use sec::{CRC_RESIDUAL_OK, crc16};
+use manager::{Frame, Flags};
 use config::{Config, Slot};
 use yubicoerror::YubicoError;
 use libusb::{Context};

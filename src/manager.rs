@@ -1,7 +1,7 @@
 use config::Command;
 use std::time::Duration;
 use std::{thread, slice};
-use sec::{ crc16 };
+use sec::{crc16};
 use yubicoerror::YubicoError;
 use libusb::{request_type, Direction, RequestType, Recipient, Context, DeviceHandle};
 
@@ -102,7 +102,7 @@ pub fn read(handle: &mut DeviceHandle, buf: &mut [u8]) -> Result<usize, YubicoEr
     assert_eq!(buf.len(), 8);
     let reqtype = request_type(Direction::In, RequestType::Class, Recipient::Interface);
     let value = REPORT_TYPE_FEATURE << 8;
-    Ok(try!(handle.read_control(reqtype, HID_GET_REPORT, value, 0, buf, Duration::new(2, 0))))
+    Ok(handle.read_control(reqtype, HID_GET_REPORT, value, 0, buf, Duration::new(2, 0))?)
 }
 
 pub fn write_frame(handle: &mut DeviceHandle, frame: &Frame) -> Result<(), YubicoError> {
@@ -132,7 +132,7 @@ pub fn write_frame(handle: &mut DeviceHandle, frame: &Frame) -> Result<(), Yubic
 pub fn raw_write(handle: &mut DeviceHandle, packet: &[u8]) -> Result<(), YubicoError> {
     let reqtype = request_type(Direction::Out, RequestType::Class, Recipient::Interface);
     let value = REPORT_TYPE_FEATURE << 8;
-    if try!(handle.write_control(reqtype, HID_SET_REPORT, value, 0, &packet, Duration::new(2, 0))) != 8 {
+    if handle.write_control(reqtype, HID_SET_REPORT, value, 0, &packet, Duration::new(2, 0))? != 8 {
         Err(YubicoError::CanNotWriteToDevice)
     } else {
         Ok(())
@@ -152,7 +152,7 @@ pub fn read_response(handle: &mut DeviceHandle, response:&mut [u8]) -> Result<us
     wait(handle, |f| {f.contains(Flags::RESP_PENDING_FLAG)}, &mut response[.. 8])?;
     r0 += 7;
     loop {
-        if try!(read(handle, &mut response[r0..r0 + 8])) < 8 {
+        if read(handle, &mut response[r0..r0 + 8])? < 8 {
             break;
         }
         let flags = Flags::from_bits_truncate(response[r0 + 7]);
@@ -168,7 +168,7 @@ pub fn read_response(handle: &mut DeviceHandle, response:&mut [u8]) -> Result<us
         }
         r0 += 7;
     }
-    try!(write_reset(handle));
+    write_reset(handle)?;
     Ok(r0)
 }
 

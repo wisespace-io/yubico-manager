@@ -1,6 +1,6 @@
 [package]
 name = "yubico_manager"
-version = "0.6.4"
+version = "0.7.0"
 authors = ["Flavio Oliveira <flavio@wisespace.io>", "Pierre-Étienne Meunier <pe@coturnix.fr>"]
 
 description = "Yubikey Challenge-Response & Configuration"
@@ -23,10 +23,10 @@ bitflags = "1.2"
 libusb = "0.3"
 structure = "0.1"
 
-aes-soft = "0.3"
-block-modes = "0.3"
-hmac = "0.7"
-sha-1 = "0.8"
+aes-soft = "0.4"
+block-modes = "0.5"
+hmac = "0.8"
+sha-1 = "0.9"
 
 [dev-dependencies]
 hex = "0.3.2"

@@ -31,19 +31,6 @@ impl fmt::Display for YubicoError {
 }
 
 impl error::Error for YubicoError {
-    fn description(&self) -> &str {
-        match *self {
-            YubicoError::IOError(ref err) => err.description(),
-            YubicoError::UsbError(ref err) => err.description(),
-            YubicoError::DeviceNotFound => "Yubikey device not found",
-            YubicoError::OpenDeviceError => "Can not open device",
-            YubicoError::CommandNotSupported => "Command Not Supported",
-            YubicoError::WrongCRC => "Wrong CRC",            
-            YubicoError::CanNotWriteToDevice => "Can not write to Device", 
-            YubicoError::ConfigNotWritten => "Can configure the Device",
-        }
-    }
-
     fn cause(&self) -> Option<& dyn error::Error> {
         match *self {
             YubicoError::UsbError(ref err) => Some(err),                    

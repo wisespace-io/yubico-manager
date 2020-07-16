@@ -1,10 +1,10 @@
 use std;
 use rand::Rng;
-use aes;
-use aes::block_cipher_trait::BlockCipher;
-use aes::block_cipher_trait::generic_array::GenericArray;
-use aes::block_cipher_trait::generic_array::typenum::U16;
-use sec::{ CRC_RESIDUAL_OK, crc16 };
+use aes::Aes128;
+use aes::block_cipher::{BlockCipher, NewBlockCipher};
+use aes::block_cipher::generic_array::GenericArray;
+use aes::block_cipher::generic_array::typenum::U16;
+use sec::{CRC_RESIDUAL_OK, crc16};
 use yubicoerror::YubicoError;
 
 #[repr(C)]
@@ -79,7 +79,7 @@ impl Aes128Block {
     /// larger than the last value seen.
     pub fn check(&self, key: &Aes128Key, challenge: &[u8]) -> Result<Otp, YubicoError> {
 
-        let aes_dec = aes::Aes128::new(GenericArray::from_slice(&key.0));
+        let aes_dec = Aes128::new(GenericArray::from_slice(&key.0));
         let mut tmp = Otp::default();
         {
             let tmp =
