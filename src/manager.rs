@@ -45,7 +45,7 @@ pub fn open_device(context: &mut Context, vid: u16, pid: u16) -> Result<DeviceHa
                         for usb_int in interface.descriptors() {
                             match handle.kernel_driver_active(usb_int.interface_number()) {
                                 Ok(true) => {
-                                    #[cfg(not(target_os = "macos"))]
+                                    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
                                     handle.detach_kernel_driver(usb_int.interface_number())?;
                                 },
                                 _ => continue
@@ -54,7 +54,7 @@ pub fn open_device(context: &mut Context, vid: u16, pid: u16) -> Result<DeviceHa
                             if handle.active_configuration()? != config.number() {
                                 handle.set_active_configuration(config.number())?;
                             }
-                            #[cfg(not(target_os = "macos"))]
+                            #[cfg(not(any(target_os = "macos", target_os = "windows")))]
                             handle.claim_interface(usb_int.interface_number())?;
                         }
                     }
@@ -71,12 +71,12 @@ pub fn open_device(context: &mut Context, vid: u16, pid: u16) -> Result<DeviceHa
     Err(YubicoError::DeviceNotFound)
 }
 
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", target_os = "windows"))]
 pub fn close_device(_handle: DeviceHandle<Context>) -> Result<(), YubicoError> {
     Ok(())
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(not(any(target_os = "macos", target_os = "windows")))]
 pub fn close_device(mut handle: DeviceHandle<Context>) -> Result<(), YubicoError> {
     handle.release_interface(0)?;
     handle.attach_kernel_driver(0)?;
