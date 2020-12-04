@@ -20,7 +20,7 @@ path = "src/lib.rs"
 [dependencies]
 rand = "0.7"
 bitflags = "1.2"
-libusb = "0.3"
+rusb = "0.6.5"
 structure = "0.1"
 
 aes-soft = "0.4"

@@ -1,4 +1,4 @@
-extern crate libusb;
+extern crate rusb;
 
 #[macro_use] extern crate structure;
 
@@ -27,7 +27,7 @@ use sec::{CRC_RESIDUAL_OK, crc16};
 use manager::{Frame, Flags};
 use config::{Config, Slot};
 use yubicoerror::YubicoError;
-use libusb::{Context};
+use rusb::{Context, UsbContext};
 
 const VENDOR_ID: u16 = 0x1050;
 
