@@ -1,6 +1,6 @@
 use std::error;
 use std::fmt;
-use libusb::Error as usbError;
+use rusb::Error as usbError;
 use std::io::Error as ioError;
 
 #[derive(Debug)]
