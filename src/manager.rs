@@ -17,7 +17,11 @@ bitflags! {
     }
 }
 
-pub fn open_device(context: &mut Context, vid: u16, pid: u16) -> Result<DeviceHandle<Context>, YubicoError> {
+pub fn open_device(
+    context: &mut Context,
+    vid: u16,
+    pid: u16,
+) -> Result<(DeviceHandle<Context>, Vec<u8>), YubicoError> {
     let devices = match context.devices() {
         Ok(device) => device,
         Err(_) => {
@@ -41,6 +45,7 @@ pub fn open_device(context: &mut Context, vid: u16, pid: u16) -> Result<DeviceHa
                         Err(_) => continue
                     };
 
+                    let mut interfaces = Vec::new();
                     for interface in config.interfaces() {
                         for usb_int in interface.descriptors() {
                             match handle.kernel_driver_active(usb_int.interface_number()) {
@@ -56,10 +61,12 @@ pub fn open_device(context: &mut Context, vid: u16, pid: u16) -> Result<DeviceHa
                             }
                             #[cfg(not(any(target_os = "macos", target_os = "windows")))]
                             handle.claim_interface(usb_int.interface_number())?;
+                            #[cfg(not(any(target_os = "macos", target_os = "windows")))]
+                            interfaces.push(usb_int.interface_number());
                         }
                     }
 
-                    return Ok(handle)
+                    return Ok((handle, interfaces))
                 },
                 Err(_) => {
                     return Err(YubicoError::OpenDeviceError);
@@ -72,14 +79,19 @@ pub fn open_device(context: &mut Context, vid: u16, pid: u16) -> Result<DeviceHa
 }
 
 #[cfg(any(target_os = "macos", target_os = "windows"))]
-pub fn close_device(_handle: DeviceHandle<Context>) -> Result<(), YubicoError> {
+pub fn close_device(
+    _handle: DeviceHandle<Context>,
+    _interfaces: Vec<u8>,
+) -> Result<(), YubicoError> {
     Ok(())
 }
 
 #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-pub fn close_device(mut handle: DeviceHandle<Context>) -> Result<(), YubicoError> {
-    handle.release_interface(0)?;
-    handle.attach_kernel_driver(0)?;
+pub fn close_device(mut handle: DeviceHandle<Context>, interfaces: Vec<u8>) -> Result<(), YubicoError> {
+    for interface in interfaces {
+        handle.release_interface(interface)?;
+        handle.attach_kernel_driver(interface)?;
+    }
     Ok(())
 }
 

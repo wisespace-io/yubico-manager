@@ -72,14 +72,14 @@ impl Yubico {
         let mut buf = [0; 8];
 
         match manager::open_device(&mut self.context, conf.vendor_id, conf.product_id) {
-            Ok(mut handle) => {
+            Ok((mut handle, interfaces)) => {
                 manager::wait(&mut handle, |f| !f.contains(Flags::SLOT_WRITE_FLAG), &mut buf)?;
 
                 // TODO: Should check version number.
 
                 manager::write_frame(&mut handle, &d)?;
                 manager::wait(&mut handle, |f| !f.contains(Flags::SLOT_WRITE_FLAG), &mut buf)?;
-                manager::close_device(handle)?;
+                manager::close_device(handle, interfaces)?;
 
                 Ok(())
             },
@@ -90,7 +90,7 @@ impl Yubico {
     pub fn read_serial_number(&mut self, conf: Config) -> Result<u32> {
 
         match manager::open_device(&mut self.context, conf.vendor_id, conf.product_id) {
-            Ok(mut handle) => {
+            Ok((mut handle, interfaces)) => {
                 let challenge = [0; 64];
                 let command = Command::DeviceSerial;
 
@@ -103,7 +103,7 @@ impl Yubico {
                 // Read the response.
                 let mut response = [0; 36];
                 manager::read_response(&mut handle, &mut response)?;
-                manager::close_device(handle)?;
+                manager::close_device(handle, interfaces)?;
 
                 // Check response.
                 if crc16(&response[..6]) != CRC_RESIDUAL_OK {
@@ -122,7 +122,7 @@ impl Yubico {
         let mut hmac = Hmac([0; 20]);
 
         match manager::open_device(&mut self.context, conf.vendor_id, conf.product_id) {
-            Ok(mut handle) => {
+            Ok((mut handle, interfaces)) => {
                 let mut challenge = [0; 64];
                 
                 if conf.variable && chall.last() == Some(&0) {
@@ -144,7 +144,7 @@ impl Yubico {
                 // Read the response.
                 let mut response = [0; 36];
                 manager::read_response(&mut handle, &mut response)?;
-                manager::close_device(handle)?;
+                manager::close_device(handle, interfaces)?;
 
                 // Check response.
                 if crc16(&response[..22]) != CRC_RESIDUAL_OK {
@@ -163,7 +163,7 @@ impl Yubico {
         let mut block = Aes128Block { block: GenericArray::clone_from_slice(&[0; 16]) };
 
         match manager::open_device(&mut self.context, conf.vendor_id, conf.product_id) {
-            Ok(mut handle) => {
+            Ok((mut handle, interfaces)) => {
                 let mut challenge = [0; 64];
                 //(&mut challenge[..6]).copy_from_slice(chall);
 
@@ -180,7 +180,7 @@ impl Yubico {
                 manager::wait(&mut handle, |f| !f.contains(manager::Flags::SLOT_WRITE_FLAG), &mut buf)?;
                 manager::write_frame(&mut handle, &d)?;
                 manager::read_response(&mut handle, &mut response)?;
-                manager::close_device(handle)?;
+                manager::close_device(handle, interfaces)?;
 
                 // Check response.
                 if crc16(&response[..18]) != CRC_RESIDUAL_OK {
