@@ -1,9 +1,8 @@
 use std;
 use rand::Rng;
-use aes::Aes128;
-use aes::block_cipher::{BlockCipher, NewBlockCipher};
-use aes::block_cipher::generic_array::GenericArray;
-use aes::block_cipher::generic_array::typenum::U16;
+use aes::{Aes128, BlockDecrypt};
+use aes::cipher::{generic_array::GenericArray,NewBlockCipher};
+use aes::cipher::generic_array::typenum::U16;
 use sec::{CRC_RESIDUAL_OK, crc16};
 use yubicoerror::YubicoError;
 
