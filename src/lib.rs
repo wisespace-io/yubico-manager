@@ -2,7 +2,7 @@ extern crate rusb;
 
 #[macro_use] extern crate structure;
 
-extern crate aes_soft as aes;
+extern crate aes;
 extern crate block_modes;
 extern crate hmac;
 extern crate rand;
@@ -17,7 +17,7 @@ pub mod config;
 pub mod configure;
 pub mod yubicoerror;
 
-use aes::block_cipher::generic_array::GenericArray;
+use aes::cipher::generic_array::GenericArray;
 
 use config::Command;
 use configure::DeviceModeConfig;
