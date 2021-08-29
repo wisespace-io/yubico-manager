@@ -18,14 +18,14 @@ name = "yubico_manager"
 path = "src/lib.rs"
 
 [dependencies]
-rand = "0.7"
+rand = "0.8.4"
 bitflags = "1.2"
-rusb = "0.6.5"
+rusb = "0.8.1"
 structure = "0.1"
 
 aes = "0.7.4"
-block-modes = "0.5"
-hmac = "0.8"
+block-modes = "0.8.1"
+hmac = "0.11.0"
 sha-1 = "0.9"
 
 [dev-dependencies]
