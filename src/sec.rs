@@ -10,7 +10,7 @@ pub const CRC_RESIDUAL_OK: u16 = 0xf0b8;
 type HmacSha1 = Hmac<Sha1>;
 
 pub fn hmac_sha1(key: &HmacKey, data: &[u8]) -> [u8; SHA1_DIGEST_SIZE] {
-    let mut hmac = HmacSha1::new_varkey(&key.0).unwrap();
+    let mut hmac = HmacSha1::new_from_slice(&key.0).unwrap();
     hmac.update(data);
     let result = hmac.finalize();
 

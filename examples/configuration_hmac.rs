@@ -19,13 +19,13 @@ fn main() {
            .set_product_id(device.product_id)
            .set_command(Command::Configuration2);
 
-        let mut rng = thread_rng();
+        let rng = thread_rng();
 
         let require_press_button = false;
 
         // Secret must have 20 bytes
         // Used rand here, but you can set your own secret: let secret: &[u8; 20] = b"my_awesome_secret_20";
-        let secret: String = rng.sample_iter(&Alphanumeric).take(20).collect();
+        let secret: String = rng.sample_iter(&Alphanumeric).take(20).map(char::from).collect();
         let hmac_key: HmacKey = HmacKey::from_slice(secret.as_bytes());
 
         let mut device_config = DeviceModeConfig::default();
