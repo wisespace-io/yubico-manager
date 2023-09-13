@@ -1,5 +1,5 @@
+use crate::sec::hmac_sha1;
 use rand::Rng;
-use sec::hmac_sha1;
 use std;
 
 #[derive(Debug)]

@@ -9,6 +9,7 @@ keywords = ["yubikey", "authentication", "encryption", "configuration", "Challen
 categories = ["authentication"]
 repository = "https://github.com/wisespace-io/yubico-manager"
 readme = "README.md"
+edition = "2021"
 
 [badges]
 travis-ci = { repository = "wisespace-io/yubico-manager" }

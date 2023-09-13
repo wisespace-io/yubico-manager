@@ -1,5 +1,5 @@
+use crate::hmacmode::HmacKey;
 use hmac::{Hmac, Mac};
-use hmacmode::HmacKey;
 use sha1::Sha1;
 
 const PRESET_VALUE: u16 = 0xFFFF;

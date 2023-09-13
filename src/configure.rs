@@ -1,8 +1,8 @@
-use config::Command;
-use hmacmode::HmacKey;
-use manager::Frame;
-use otpmode::Aes128Key;
-use sec::crc16;
+use crate::config::Command;
+use crate::hmacmode::HmacKey;
+use crate::manager::Frame;
+use crate::otpmode::Aes128Key;
+use crate::sec::crc16;
 use std;
 
 const FIXED_SIZE: usize = 16;

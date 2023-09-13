@@ -1,9 +1,9 @@
-use config::Command;
+use crate::config::Command;
+use crate::sec::crc16;
+use crate::yubicoerror::YubicoError;
 use rusb::{request_type, Context, DeviceHandle, Direction, Recipient, RequestType, UsbContext};
-use sec::crc16;
 use std::time::Duration;
 use std::{slice, thread};
-use yubicoerror::YubicoError;
 
 const DATA_SIZE: usize = 64;
 const HID_GET_REPORT: u8 = 0x01;

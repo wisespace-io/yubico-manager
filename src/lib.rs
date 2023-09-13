@@ -1,13 +1,6 @@
-extern crate rusb;
-
 #[macro_use]
 extern crate structure;
 
-extern crate aes;
-extern crate block_modes;
-extern crate hmac;
-extern crate rand;
-extern crate sha1;
 #[macro_use]
 extern crate bitflags;
 
@@ -20,7 +13,6 @@ pub mod sec;
 pub mod yubicoerror;
 
 use aes::cipher::generic_array::GenericArray;
-
 use config::Command;
 use config::{Config, Slot};
 use configure::DeviceModeConfig;
