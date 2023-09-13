@@ -17,7 +17,7 @@ fn main() {
             device.vendor_id, device.product_id
         );
 
-        let config = Config::default()
+        let config = Config::default_config()
             .set_vendor_id(device.vendor_id)
             .set_product_id(device.product_id)
             .set_command(Command::Configuration2);
