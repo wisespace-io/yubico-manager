@@ -1,7 +1,5 @@
 # Yubico Manager &emsp; [![Build Status]][travis] [![Latest Version]][crates.io] [![MIT licensed]][MIT] [![Apache-2.0 licensed]][APACHE]
 
-[Build Status]: https://travis-ci.org/wisespace-io/yubico-manager.png?branch=master
-[travis]: https://travis-ci.org/wisespace-io/yubico-manager
 [Latest Version]: https://img.shields.io/crates/v/yubico-manager.svg
 [crates.io]: https://crates.io/crates/yubico-manager
 [MIT licensed]: https://img.shields.io/badge/License-MIT-blue.svg
