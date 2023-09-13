@@ -57,14 +57,14 @@ impl DeviceModeConfig {
                     SIZEOF_CONFIG - 2,
                 )
             };
-            (0xffff - crc16(&first_fields)).to_le()
+            (0xffff - crc16(first_fields)).to_le()
         };
 
         // Then write to the payload.
         let s = unsafe {
             std::slice::from_raw_parts(self as *const DeviceModeConfig as *const u8, SIZEOF_CONFIG)
         };
-        (&mut payload[..SIZEOF_CONFIG]).clone_from_slice(s);
+        payload[..SIZEOF_CONFIG].clone_from_slice(s);
 
         Frame::new(payload, command)
     }
@@ -96,7 +96,7 @@ impl DeviceModeConfig {
         }
         let (a, b) = secret.0.split_at(16);
         self.key.copy_from_slice(a);
-        (&mut self.uid[..4]).copy_from_slice(b);
+        self.uid[..4].copy_from_slice(b);
     }
 
     /// Sets the configuration in challenge-response, OTP mode.

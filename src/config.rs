@@ -72,7 +72,7 @@ pub struct Config {
 
 #[allow(dead_code)]
 impl Config {
-    pub fn default() -> Config {
+    pub fn default_config() -> Config {
         Config {
             product_id: 0x00,
             vendor_id: 0x1050,

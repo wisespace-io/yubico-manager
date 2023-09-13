@@ -39,7 +39,7 @@ impl Drop for Aes128Key {
 impl Aes128Key {
     pub fn from_slice(s: &[u8]) -> Self {
         let mut key = Aes128Key([0; 16]);
-        (&mut key.0).clone_from_slice(s);
+        key.0.clone_from_slice(s);
         key
     }
 
@@ -83,11 +83,11 @@ impl Aes128Block {
         {
             let tmp =
                 unsafe { std::slice::from_raw_parts_mut(&mut tmp as *mut Otp as *mut u8, 16) };
-            let mut block_copy = &mut self.block.clone();
-            aes_dec.decrypt_block(&mut block_copy);
+            let block_copy = &mut self.block.clone();
+            aes_dec.decrypt_block(block_copy);
             tmp.copy_from_slice(block_copy);
 
-            if crc16(&tmp) != CRC_RESIDUAL_OK {
+            if crc16(tmp) != CRC_RESIDUAL_OK {
                 return Err(YubicoError::WrongCRC);
             }
         }

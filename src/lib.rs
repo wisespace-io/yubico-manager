@@ -46,6 +46,12 @@ pub struct Yubico {
     context: Context,
 }
 
+impl Default for Yubico {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Yubico {
     /// Creates a new Yubico instance.
     pub fn new() -> Self {
@@ -77,22 +83,14 @@ impl Yubico {
         let d = device_config.to_frame(conf.command);
         let mut buf = [0; 8];
 
-        match manager::open_device(&mut self.context, conf.vendor_id, conf.product_id) {
-            Ok((mut handle, interfaces)) => {
-                manager::wait(
-                    &mut handle,
-                    |f| !f.contains(Flags::SLOT_WRITE_FLAG),
-                    &mut buf,
-                )?;
+        match manager::open_device(&self.context, conf.vendor_id, conf.product_id) {
+            Ok((handle, interfaces)) => {
+                manager::wait(&handle, |f| !f.contains(Flags::SLOT_WRITE_FLAG), &mut buf)?;
 
                 // TODO: Should check version number.
 
-                manager::write_frame(&mut handle, &d)?;
-                manager::wait(
-                    &mut handle,
-                    |f| !f.contains(Flags::SLOT_WRITE_FLAG),
-                    &mut buf,
-                )?;
+                manager::write_frame(&handle, &d)?;
+                manager::wait(&handle, |f| !f.contains(Flags::SLOT_WRITE_FLAG), &mut buf)?;
                 manager::close_device(handle, interfaces)?;
 
                 Ok(())
@@ -102,24 +100,24 @@ impl Yubico {
     }
 
     pub fn read_serial_number(&mut self, conf: Config) -> Result<u32> {
-        match manager::open_device(&mut self.context, conf.vendor_id, conf.product_id) {
-            Ok((mut handle, interfaces)) => {
+        match manager::open_device(&self.context, conf.vendor_id, conf.product_id) {
+            Ok((handle, interfaces)) => {
                 let challenge = [0; 64];
                 let command = Command::DeviceSerial;
 
                 let d = Frame::new(challenge, command); // FixMe: do not need a challange
                 let mut buf = [0; 8];
                 manager::wait(
-                    &mut handle,
+                    &handle,
                     |f| !f.contains(manager::Flags::SLOT_WRITE_FLAG),
                     &mut buf,
                 )?;
 
-                manager::write_frame(&mut handle, &d)?;
+                manager::write_frame(&handle, &d)?;
 
                 // Read the response.
                 let mut response = [0; 36];
-                manager::read_response(&mut handle, &mut response)?;
+                manager::read_response(&handle, &mut response)?;
                 manager::close_device(handle, interfaces)?;
 
                 // Check response.
@@ -127,7 +125,7 @@ impl Yubico {
                     return Err(YubicoError::WrongCRC);
                 }
 
-                let serial = structure!("2I").unpack(response[..8].to_vec())?;
+                let serial = structure!("2I").unpack(&response[..8])?;
 
                 Ok(serial.0)
             }
@@ -138,8 +136,8 @@ impl Yubico {
     pub fn challenge_response_hmac(&mut self, chall: &[u8], conf: Config) -> Result<Hmac> {
         let mut hmac = Hmac([0; 20]);
 
-        match manager::open_device(&mut self.context, conf.vendor_id, conf.product_id) {
-            Ok((mut handle, interfaces)) => {
+        match manager::open_device(&self.context, conf.vendor_id, conf.product_id) {
+            Ok((handle, interfaces)) => {
                 let mut challenge = [0; 64];
 
                 if conf.variable && chall.last() == Some(&0) {
@@ -151,20 +149,20 @@ impl Yubico {
                     command = Command::ChallengeHmac2;
                 }
 
-                (&mut challenge[..chall.len()]).copy_from_slice(chall);
+                challenge[..chall.len()].copy_from_slice(chall);
                 let d = Frame::new(challenge, command);
                 let mut buf = [0; 8];
                 manager::wait(
-                    &mut handle,
+                    &handle,
                     |f| !f.contains(manager::Flags::SLOT_WRITE_FLAG),
                     &mut buf,
                 )?;
 
-                manager::write_frame(&mut handle, &d)?;
+                manager::write_frame(&handle, &d)?;
 
                 // Read the response.
                 let mut response = [0; 36];
-                manager::read_response(&mut handle, &mut response)?;
+                manager::read_response(&handle, &mut response)?;
                 manager::close_device(handle, interfaces)?;
 
                 // Check response.
@@ -185,8 +183,8 @@ impl Yubico {
             block: GenericArray::clone_from_slice(&[0; 16]),
         };
 
-        match manager::open_device(&mut self.context, conf.vendor_id, conf.product_id) {
-            Ok((mut handle, interfaces)) => {
+        match manager::open_device(&self.context, conf.vendor_id, conf.product_id) {
+            Ok((handle, interfaces)) => {
                 let mut challenge = [0; 64];
                 //(&mut challenge[..6]).copy_from_slice(chall);
 
@@ -195,18 +193,18 @@ impl Yubico {
                     command = Command::ChallengeOtp2;
                 }
 
-                (&mut challenge[..chall.len()]).copy_from_slice(chall);
+                challenge[..chall.len()].copy_from_slice(chall);
                 let d = Frame::new(challenge, command);
                 let mut buf = [0; 8];
 
                 let mut response = [0; 36];
                 manager::wait(
-                    &mut handle,
+                    &handle,
                     |f| !f.contains(manager::Flags::SLOT_WRITE_FLAG),
                     &mut buf,
                 )?;
-                manager::write_frame(&mut handle, &d)?;
-                manager::read_response(&mut handle, &mut response)?;
+                manager::write_frame(&handle, &d)?;
+                manager::read_response(&handle, &mut response)?;
                 manager::close_device(handle, interfaces)?;
 
                 // Check response.
