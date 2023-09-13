@@ -92,7 +92,8 @@ impl Aes128Block {
             }
         }
 
-        for i in 0..6 {
+        //for i in 0..6 {
+        for (i, _) in challenge.iter().enumerate().take(6) {
             tmp.uid[i] ^= challenge[i]
         }
 
