@@ -1,4 +1,4 @@
-# Yubico Manager &emsp; [![Build Status]][travis] [![Latest Version]][crates.io] [![MIT licensed]][MIT] [![Apache-2.0 licensed]][APACHE]
+# Yubico Manager &emsp; [![Latest Version]][crates.io] [![MIT licensed]][MIT] [![Apache-2.0 licensed]][APACHE]
 
 [Latest Version]: https://img.shields.io/crates/v/yubico-manager.svg
 [crates.io]: https://crates.io/crates/yubico-manager
