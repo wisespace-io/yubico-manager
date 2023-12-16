@@ -67,6 +67,23 @@ impl Yubico {
         Err(YubicoError::DeviceNotFound)
     }
 
+    /// Finds all the YubiKeys currently connected to the system
+    pub fn find_yubikeys(&mut self) -> Result<Vec<Device>> {
+        let mut yubikeys: Vec<Device> = vec![];
+
+        for device in self.context.devices().unwrap().iter() {
+            let descr = device.device_descriptor().unwrap();
+            if descr.vendor_id() == VENDOR_ID {
+                let device = Device {
+                    product_id: descr.product_id(),
+                    vendor_id: descr.vendor_id(),
+                };
+                yubikeys.push(device);
+            }
+        }
+        Ok(yubikeys)
+    }
+
     pub fn write_config(&mut self, conf: Config, device_config: &mut DeviceModeConfig) -> Result<()> {
         let d = device_config.to_frame(conf.command);
         let mut buf = [0; 8];
