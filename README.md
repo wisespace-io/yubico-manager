@@ -24,7 +24,7 @@ Add this to your Cargo.toml
 
 ```toml
 [dependencies]
-yubico_manager = "0.9"
+yubico_manager = "0.10"
 ```
 
 ### Configure Yubikey (HMAC-SHA1 mode)
@@ -49,10 +49,10 @@ fn main() {
    if let Ok(device) = yubi.find_yubikey() {
        println!("Vendor ID: {:?} Product ID {:?}", device.vendor_id, device.product_id);
 
-       let config = Config::default()
-           .set_vendor_id(device.vendor_id)
-           .set_product_id(device.product_id)
-           .set_command(Command::Configuration2);
+       let config = Config::new_from(device)
+           .set_variable_size(true)
+           .set_mode(Mode::Sha1)
+           .set_slot(Slot::Slot2);
 
         let mut rng = thread_rng();
 
@@ -94,9 +94,7 @@ fn main() {
    if let Ok(device) = yubi.find_yubikey() {
        println!("Vendor ID: {:?} Product ID {:?}", device.vendor_id, device.product_id);
 
-       let config = Config::default()
-           .set_vendor_id(device.vendor_id)
-           .set_product_id(device.product_id)
+      let config = Config::new_from(device)
            .set_variable_size(true)
            .set_mode(Mode::Sha1)
            .set_slot(Slot::Slot2);
