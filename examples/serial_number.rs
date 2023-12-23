@@ -1,7 +1,7 @@
 extern crate hex;
 extern crate yubico_manager;
 
-use yubico_manager::{Yubico};
+use yubico_manager::Yubico;
 use yubico_manager::config::{Config, Slot};
 
 fn main() {
@@ -10,9 +10,7 @@ fn main() {
    if let Ok(device) = yubi.find_yubikey() {
        println!("Vendor ID: {:?} Product ID {:?}", device.vendor_id, device.product_id);
 
-       let config = Config::default()
-           .set_vendor_id(device.vendor_id)
-           .set_product_id(device.product_id)
+       let config = Config::new_from(device)
            .set_slot(Slot::Slot2);
 
        match yubi.read_serial_number(config){
