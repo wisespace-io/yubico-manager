@@ -38,9 +38,7 @@ pub fn open_device(
             }
         };
 
-        if device.bus_number() == yubikey.device_address.bus
-            && device.address() == yubikey.device_address.address
-        {
+        if device.bus_number() == yubikey.bus_id && device.address() == yubikey.address_id {
             match device.open() {
                 Ok(mut handle) => {
                     let config = match device.config_descriptor(0) {

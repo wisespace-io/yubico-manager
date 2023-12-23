@@ -40,13 +40,8 @@ type Result<T> = ::std::result::Result<T, YubicoError>;
 pub struct Yubikey {
     pub product_id: u16,
     pub vendor_id: u16,
-    pub device_address: YubikeyDeviceAddress,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct YubikeyDeviceAddress {
-    pub bus: u8,
-    pub address: u8,
+    pub bus_id: u8,
+    pub address_id: u8,
 }
 
 pub struct Yubico {
@@ -68,10 +63,8 @@ impl Yubico {
                 let device = Yubikey {
                     product_id: descr.product_id(),
                     vendor_id: descr.vendor_id(),
-                    device_address: YubikeyDeviceAddress {
-                        bus: device.bus_number(),
-                        address: device.address(),
-                    },
+                    bus_id: device.bus_number(),
+                    address_id: device.address(),
                 };
                 return Ok(device);
             }
@@ -88,10 +81,8 @@ impl Yubico {
                 let device = Yubikey {
                     product_id: descr.product_id(),
                     vendor_id: descr.vendor_id(),
-                    device_address: YubikeyDeviceAddress {
-                        bus: device.bus_number(),
-                        address: device.address(),
-                    },
+                    bus_id: device.bus_number(),
+                    address_id: device.address(),
                 };
                 result.push(device);
             }
