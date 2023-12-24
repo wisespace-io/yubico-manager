@@ -38,6 +38,7 @@ type Result<T> = ::std::result::Result<T, YubicoError>;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Yubikey {
+    pub name: String,
     pub product_id: u16,
     pub vendor_id: u16,
     pub bus_id: u8,
@@ -60,13 +61,20 @@ impl Yubico {
         for device in self.context.devices().unwrap().iter() {
             let descr = device.device_descriptor().unwrap();
             if descr.vendor_id() == VENDOR_ID {
-                let device = Yubikey {
+                let name = device
+                    .open()
+                    .unwrap()
+                    .read_product_string_ascii(&descr)
+                    .unwrap();
+                let yubikey = Yubikey {
+                    name: name,
                     product_id: descr.product_id(),
                     vendor_id: descr.vendor_id(),
                     bus_id: device.bus_number(),
                     address_id: device.address(),
                 };
-                return Ok(device);
+
+                return Ok(yubikey);
             }
         }
 
@@ -78,13 +86,19 @@ impl Yubico {
         for device in self.context.devices().unwrap().iter() {
             let descr = device.device_descriptor().unwrap();
             if descr.vendor_id() == VENDOR_ID {
-                let device = Yubikey {
+                let name = device
+                    .open()
+                    .unwrap()
+                    .read_product_string_ascii(&descr)
+                    .unwrap();
+                let yubikey = Yubikey {
+                    name: name,
                     product_id: descr.product_id(),
                     vendor_id: descr.vendor_id(),
                     bus_id: device.bus_number(),
                     address_id: device.address(),
                 };
-                result.push(device);
+                result.push(yubikey);
             }
         }
 
