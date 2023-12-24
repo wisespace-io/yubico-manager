@@ -45,7 +45,8 @@ pub fn open_device(
                         Err(_) => continue,
                     };
 
-                    let mut interfaces = Vec::new();
+
+                    let mut _interfaces = Vec::new();
                     for interface in config.interfaces() {
                         for usb_int in interface.descriptors() {
                             match handle.kernel_driver_active(usb_int.interface_number()) {
@@ -62,11 +63,11 @@ pub fn open_device(
                             #[cfg(not(any(target_os = "macos", target_os = "windows")))]
                             handle.claim_interface(usb_int.interface_number())?;
                             #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-                            interfaces.push(usb_int.interface_number());
+                            _interfaces.push(usb_int.interface_number());
                         }
                     }
 
-                    return Ok((handle, interfaces));
+                    return Ok((handle, _interfaces));
                 }
                 Err(_) => {
                     return Err(YubicoError::OpenDeviceError);
