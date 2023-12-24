@@ -113,6 +113,33 @@ impl Yubico {
         Err(YubicoError::DeviceNotFound)
     }
 
+    pub fn find_yubikey_from_serial(&mut self, serial: u32) -> Result<Yubikey> {
+        for device in self.context.devices().unwrap().iter() {
+            let descr = device.device_descriptor().unwrap();
+            if descr.vendor_id() == VENDOR_ID {
+                let name = device.open()?.read_product_string_ascii(&descr).ok();
+                let fetched_serial = match self.read_serial_from_device(device.clone()).ok() {
+                    Some(s) => s,
+                    None => 0,
+                };
+                if serial == fetched_serial {
+                    let yubikey = Yubikey {
+                        name: name,
+                        serial: Some(serial),
+                        product_id: descr.product_id(),
+                        vendor_id: descr.vendor_id(),
+                        bus_id: device.bus_number(),
+                        address_id: device.address(),
+                    };
+
+                    return Ok(yubikey);
+                }
+            }
+        }
+
+        Err(YubicoError::DeviceNotFound)
+    }
+
     pub fn find_all_yubikeys(&mut self) -> Result<Vec<Yubikey>> {
         let mut result: Vec<Yubikey> = Vec::new();
         for device in self.context.devices().unwrap().iter() {
