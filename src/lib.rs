@@ -79,6 +79,8 @@ impl Yubico {
         let mut response = [0; 36];
         manager::read_response(&mut handle.0, &mut response)?;
 
+        drop(handle); // Close Device
+
         // Check response.
         if crc16(&response[..6]) != crate::sec::CRC_RESIDUAL_OK {
             return Err(YubicoError::WrongCRC);
