@@ -1,11 +1,11 @@
 use crate::config::Command;
 use crate::sec::crc16;
 use crate::yubicoerror::YubicoError;
-use rusb::{request_type, Context, DeviceHandle, Direction, Recipient, RequestType, UsbContext};
+use rusb::{
+    request_type, Context, Device, DeviceHandle, Direction, Recipient, RequestType, UsbContext,
+};
 use std::time::Duration;
 use std::{slice, thread};
-
-use crate::Yubikey;
 
 const DATA_SIZE: usize = 64;
 const HID_GET_REPORT: u8 = 0x01;
@@ -19,9 +19,43 @@ bitflags! {
     }
 }
 
+pub fn read_serial_from_device(
+    context: &mut Context,
+    device: Device<Context>,
+) -> Result<u32, YubicoError> {
+    // let mut context = Context::new()?;
+    let mut handle = open_device(context, device.bus_number(), device.address())?;
+    let challenge = [0; 64];
+    let command = Command::DeviceSerial;
+
+    let d = Frame::new(challenge, command); // FixMe: do not need a challange
+    let mut buf = [0; 8];
+    wait(
+        &mut handle.0,
+        |f| !f.contains(Flags::SLOT_WRITE_FLAG),
+        &mut buf,
+    )?;
+
+    write_frame(&mut handle.0, &d)?;
+
+    // Read the response.
+    let mut response = [0; 36];
+    read_response(&mut handle.0, &mut response)?;
+
+    // Check response.
+    if crc16(&response[..6]) != crate::sec::CRC_RESIDUAL_OK {
+        return Err(YubicoError::WrongCRC);
+    }
+
+    let serial = structure!("2I").unpack(response[..8].to_vec())?;
+
+    Ok(serial.0)
+}
+
 pub fn open_device(
     context: &mut Context,
-    yubikey: Yubikey,
+    bus_id: u8,
+    address_id: u8,
 ) -> Result<(DeviceHandle<Context>, Vec<u8>), YubicoError> {
     let devices = match context.devices() {
         Ok(device) => device,
@@ -38,7 +72,7 @@ pub fn open_device(
             }
         };
 
-        if device.bus_number() == yubikey.bus_id && device.address() == yubikey.address_id {
+        if device.bus_number() == bus_id && device.address() == address_id {
             match device.open() {
                 Ok(mut handle) => {
                     let config = match device.config_descriptor(0) {

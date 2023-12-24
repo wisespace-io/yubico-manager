@@ -25,7 +25,7 @@ use config::Command;
 use config::{Config, Slot};
 use configure::DeviceModeConfig;
 use hmacmode::Hmac;
-use manager::{Flags, Frame};
+use manager::{read_serial_from_device, Flags, Frame};
 use otpmode::Aes128Block;
 use rusb::{Context, UsbContext};
 use sec::{crc16, CRC_RESIDUAL_OK};
@@ -39,6 +39,7 @@ type Result<T> = ::std::result::Result<T, YubicoError>;
 #[derive(Clone, Debug, PartialEq)]
 pub struct Yubikey {
     pub name: String,
+    pub serial: u32,
     pub product_id: u16,
     pub vendor_id: u16,
     pub bus_id: u8,
@@ -61,13 +62,11 @@ impl Yubico {
         for device in self.context.devices().unwrap().iter() {
             let descr = device.device_descriptor().unwrap();
             if descr.vendor_id() == VENDOR_ID {
-                let name = device
-                    .open()
-                    .unwrap()
-                    .read_product_string_ascii(&descr)
-                    .unwrap();
+                let name = device.open()?.read_product_string_ascii(&descr)?;
+                let serial = read_serial_from_device(&mut self.context.clone(), device.clone())?;
                 let yubikey = Yubikey {
                     name: name,
+                    serial: serial,
                     product_id: descr.product_id(),
                     vendor_id: descr.vendor_id(),
                     bus_id: device.bus_number(),
@@ -86,13 +85,11 @@ impl Yubico {
         for device in self.context.devices().unwrap().iter() {
             let descr = device.device_descriptor().unwrap();
             if descr.vendor_id() == VENDOR_ID {
-                let name = device
-                    .open()
-                    .unwrap()
-                    .read_product_string_ascii(&descr)
-                    .unwrap();
+                let name = device.open()?.read_product_string_ascii(&descr)?;
+                let serial = read_serial_from_device(&mut self.context.clone(), device.clone())?;
                 let yubikey = Yubikey {
                     name: name,
+                    serial: serial,
                     product_id: descr.product_id(),
                     vendor_id: descr.vendor_id(),
                     bus_id: device.bus_number(),
@@ -117,7 +114,11 @@ impl Yubico {
         let d = device_config.to_frame(conf.command);
         let mut buf = [0; 8];
 
-        match manager::open_device(&mut self.context, conf.yubikey) {
+        match manager::open_device(
+            &mut self.context,
+            conf.yubikey.bus_id,
+            conf.yubikey.address_id,
+        ) {
             Ok((mut handle, interfaces)) => {
                 manager::wait(
                     &mut handle,
@@ -142,7 +143,11 @@ impl Yubico {
     }
 
     pub fn read_serial_number(&mut self, conf: Config) -> Result<u32> {
-        match manager::open_device(&mut self.context, conf.yubikey) {
+        match manager::open_device(
+            &mut self.context,
+            conf.yubikey.bus_id,
+            conf.yubikey.address_id,
+        ) {
             Ok((mut handle, interfaces)) => {
                 let challenge = [0; 64];
                 let command = Command::DeviceSerial;
@@ -178,7 +183,11 @@ impl Yubico {
     pub fn challenge_response_hmac(&mut self, chall: &[u8], conf: Config) -> Result<Hmac> {
         let mut hmac = Hmac([0; 20]);
 
-        match manager::open_device(&mut self.context, conf.yubikey) {
+        match manager::open_device(
+            &mut self.context,
+            conf.yubikey.bus_id,
+            conf.yubikey.address_id,
+        ) {
             Ok((mut handle, interfaces)) => {
                 let mut challenge = [0; 64];
 
@@ -225,7 +234,11 @@ impl Yubico {
             block: GenericArray::clone_from_slice(&[0; 16]),
         };
 
-        match manager::open_device(&mut self.context, conf.yubikey) {
+        match manager::open_device(
+            &mut self.context,
+            conf.yubikey.bus_id,
+            conf.yubikey.address_id,
+        ) {
             Ok((mut handle, interfaces)) => {
                 let mut challenge = [0; 64];
                 //(&mut challenge[..6]).copy_from_slice(chall);
