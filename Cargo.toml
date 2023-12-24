@@ -10,6 +10,7 @@ categories = ["authentication"]
 repository = "https://github.com/wisespace-io/yubico-manager"
 readme = "README.md"
 edition = "2021"
+resolver = "2"
 
 [badges]
 travis-ci = { repository = "wisespace-io/yubico-manager" }
