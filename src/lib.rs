@@ -38,8 +38,8 @@ type Result<T> = ::std::result::Result<T, YubicoError>;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Yubikey {
-    pub name: String,
-    pub serial: u32,
+    pub name: Option<String>,
+    pub serial: Option<u32>,
     pub product_id: u16,
     pub vendor_id: u16,
     pub bus_id: u8,
@@ -95,8 +95,8 @@ impl Yubico {
         for device in self.context.devices().unwrap().iter() {
             let descr = device.device_descriptor().unwrap();
             if descr.vendor_id() == VENDOR_ID {
-                let name = device.open()?.read_product_string_ascii(&descr)?;
-                let serial = self.read_serial_from_device(device.clone())?;
+                let name = device.open()?.read_product_string_ascii(&descr).ok();
+                let serial = self.read_serial_from_device(device.clone()).ok();
                 let yubikey = Yubikey {
                     name: name,
                     serial: serial,
@@ -118,8 +118,8 @@ impl Yubico {
         for device in self.context.devices().unwrap().iter() {
             let descr = device.device_descriptor().unwrap();
             if descr.vendor_id() == VENDOR_ID {
-                let name = device.open()?.read_product_string_ascii(&descr)?;
-                let serial = self.read_serial_from_device(device.clone())?;
+                let name = device.open()?.read_product_string_ascii(&descr).ok();
+                let serial = self.read_serial_from_device(device.clone()).ok();
                 let yubikey = Yubikey {
                     name: name,
                     serial: serial,
@@ -284,16 +284,20 @@ impl Yubico {
                 (&mut challenge[..chall.len()]).copy_from_slice(chall);
                 let d = Frame::new(challenge, command);
                 let mut buf = [0; 8];
-
+                eprintln!("Step 1 done");
                 let mut response = [0; 36];
                 manager::wait(
                     &mut handle,
                     |f| !f.contains(manager::Flags::SLOT_WRITE_FLAG),
                     &mut buf,
                 )?;
+                eprintln!("Step 2 done");
                 manager::write_frame(&mut handle, &d)?;
+                eprintln!("Step 3 done");
                 manager::read_response(&mut handle, &mut response)?;
+                eprintln!("Step 4 done");
                 manager::close_device(handle, interfaces)?;
+                eprintln!("Step 5 done");
 
                 // Check response.
                 if crc16(&response[..18]) != CRC_RESIDUAL_OK {
