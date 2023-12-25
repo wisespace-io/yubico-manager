@@ -2,7 +2,7 @@ extern crate hex;
 extern crate yubico_manager;
 
 use std::ops::Deref;
-use yubico_manager::{Yubico};
+use yubico_manager::Yubico;
 use yubico_manager::config::{Config, Slot, Mode};
 
 fn main() {
@@ -11,9 +11,7 @@ fn main() {
    if let Ok(device) = yubi.find_yubikey() {
        println!("Vendor ID: {:?} Product ID {:?}", device.vendor_id, device.product_id);
 
-       let config = Config::default()
-           .set_vendor_id(device.vendor_id)
-           .set_product_id(device.product_id)
+       let config = Config::new_from(device)
            .set_variable_size(true)
            .set_mode(Mode::Sha1)
            .set_slot(Slot::Slot2);
