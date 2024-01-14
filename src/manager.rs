@@ -19,8 +19,8 @@ bitflags! {
 
 pub fn open_device(
     context: &mut Context,
-    vid: u16,
-    pid: u16,
+    bus_id: u8,
+    address_id: u8,
 ) -> Result<(DeviceHandle<Context>, Vec<u8>), YubicoError> {
     let devices = match context.devices() {
         Ok(device) => device,
@@ -30,14 +30,14 @@ pub fn open_device(
     };
 
     for device in devices.iter() {
-        let device_desc = match device.device_descriptor() {
-            Ok(device) => device,
+        match device.device_descriptor() {
+            Ok(_) => {}
             Err(_) => {
                 return Err(YubicoError::DeviceNotFound);
             }
         };
 
-        if device_desc.vendor_id() == vid && device_desc.product_id() == pid {
+        if device.bus_number() == bus_id && device.address() == address_id {
             match device.open() {
                 Ok(mut handle) => {
                     let config = match device.config_descriptor(0) {
