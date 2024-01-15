@@ -14,9 +14,7 @@ fn main() {
    if let Ok(device) = yubi.find_yubikey() {
        println!("Vendor ID: {:?} Product ID {:?}", device.vendor_id, device.product_id);
 
-       let config = Config::default()
-           .set_vendor_id(device.vendor_id)
-           .set_product_id(device.product_id)
+       let config = Config::new_from(device)
            .set_command(Command::Configuration2);
 
         let rng = thread_rng();
