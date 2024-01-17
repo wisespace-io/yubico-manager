@@ -1,10 +1,11 @@
-use std;
-use rand::Rng;
-use aes::{Aes128, BlockDecrypt};
-use aes::cipher::{generic_array::GenericArray,NewBlockCipher};
+use crate::sec::{crc16, CRC_RESIDUAL_OK};
+use crate::yubicoerror::YubicoError;
 use aes::cipher::generic_array::typenum::U16;
-use sec::{CRC_RESIDUAL_OK, crc16};
-use yubicoerror::YubicoError;
+use aes::cipher::generic_array::GenericArray;
+use aes::cipher::{BlockDecrypt, KeyInit};
+use aes::Aes128;
+use rand::Rng;
+use std;
 
 #[repr(C)]
 #[repr(packed)]
@@ -38,11 +39,11 @@ impl Drop for Aes128Key {
 impl Aes128Key {
     pub fn from_slice(s: &[u8]) -> Self {
         let mut key = Aes128Key([0; 16]);
-        (&mut key.0).clone_from_slice(s);
+        key.0.clone_from_slice(s);
         key
     }
 
-    pub fn generate<R:Rng>(mut rng: R) -> Self {
+    pub fn generate<R: Rng>(mut rng: R) -> Self {
         let mut key = Aes128Key([0; 16]);
         for i in key.0.iter_mut() {
             *i = rng.gen()
@@ -77,22 +78,22 @@ impl Aes128Block {
     /// id, and that the `(use_counter, session_counter)` is strictly
     /// larger than the last value seen.
     pub fn check(&self, key: &Aes128Key, challenge: &[u8]) -> Result<Otp, YubicoError> {
-
         let aes_dec = Aes128::new(GenericArray::from_slice(&key.0));
         let mut tmp = Otp::default();
         {
             let tmp =
                 unsafe { std::slice::from_raw_parts_mut(&mut tmp as *mut Otp as *mut u8, 16) };
-            let mut block_copy = &mut self.block.clone();
-            aes_dec.decrypt_block(&mut block_copy);
+            let block_copy = &mut self.block.clone();
+            aes_dec.decrypt_block(block_copy);
             tmp.copy_from_slice(block_copy);
 
-            if crc16(&tmp) != CRC_RESIDUAL_OK {
+            if crc16(tmp) != CRC_RESIDUAL_OK {
                 return Err(YubicoError::WrongCRC);
             }
         }
 
-        for i in 0..6 {
+        //for i in 0..6 {
+        for (i, _) in challenge.iter().enumerate().take(6) {
             tmp.uid[i] ^= challenge[i]
         }
 

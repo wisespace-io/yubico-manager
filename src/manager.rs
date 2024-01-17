@@ -1,9 +1,9 @@
-use config::Command;
+use crate::config::Command;
+use crate::sec::crc16;
+use crate::yubicoerror::YubicoError;
+use rusb::{request_type, Context, DeviceHandle, Direction, Recipient, RequestType, UsbContext};
 use std::time::Duration;
-use std::{thread, slice};
-use sec::{crc16};
-use yubicoerror::YubicoError;
-use rusb::{request_type, Direction, RequestType, Recipient, Context, DeviceHandle, UsbContext};
+use std::{slice, thread};
 
 const DATA_SIZE: usize = 64;
 const HID_GET_REPORT: u8 = 0x01;
@@ -18,7 +18,7 @@ bitflags! {
 }
 
 pub fn open_device(
-    context: &mut Context,
+    context: &Context,
     vid: u16,
     pid: u16,
 ) -> Result<(DeviceHandle<Context>, Vec<u8>), YubicoError> {
@@ -42,7 +42,7 @@ pub fn open_device(
                 Ok(mut handle) => {
                     let config = match device.config_descriptor(0) {
                         Ok(c) => c,
-                        Err(_) => continue
+                        Err(_) => continue,
                     };
 
                     let mut interfaces = Vec::new();
@@ -52,8 +52,8 @@ pub fn open_device(
                                 Ok(true) => {
                                     #[cfg(not(any(target_os = "macos", target_os = "windows")))]
                                     handle.detach_kernel_driver(usb_int.interface_number())?;
-                                },
-                                _ => continue
+                                }
+                                _ => continue,
                             };
 
                             if handle.active_configuration()? != config.number() {
@@ -66,8 +66,8 @@ pub fn open_device(
                         }
                     }
 
-                    return Ok((handle, interfaces))
-                },
+                    return Ok((handle, interfaces));
+                }
                 Err(_) => {
                     return Err(YubicoError::OpenDeviceError);
                 }
@@ -87,7 +87,10 @@ pub fn close_device(
 }
 
 #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-pub fn close_device(mut handle: DeviceHandle<Context>, interfaces: Vec<u8>) -> Result<(), YubicoError> {
+pub fn close_device(
+    mut handle: DeviceHandle<Context>,
+    interfaces: Vec<u8>,
+) -> Result<(), YubicoError> {
     for interface in interfaces {
         handle.release_interface(interface)?;
         handle.attach_kernel_driver(interface)?;
@@ -95,7 +98,11 @@ pub fn close_device(mut handle: DeviceHandle<Context>, interfaces: Vec<u8>) -> R
     Ok(())
 }
 
-pub fn wait<F: Fn(Flags) -> bool>(handle: &mut DeviceHandle<Context>, f: F, buf: &mut [u8]) -> Result<(), YubicoError>  {
+pub fn wait<F: Fn(Flags) -> bool>(
+    handle: &DeviceHandle<Context>,
+    f: F,
+    buf: &mut [u8],
+) -> Result<(), YubicoError> {
     loop {
         read(handle, buf)?;
         let flags = Flags::from_bits_truncate(buf[7]);
@@ -110,17 +117,15 @@ pub fn wait<F: Fn(Flags) -> bool>(handle: &mut DeviceHandle<Context>, f: F, buf:
     }
 }
 
-pub fn read(handle: &mut DeviceHandle<Context>, buf: &mut [u8]) -> Result<usize, YubicoError> {
+pub fn read(handle: &DeviceHandle<Context>, buf: &mut [u8]) -> Result<usize, YubicoError> {
     assert_eq!(buf.len(), 8);
     let reqtype = request_type(Direction::In, RequestType::Class, Recipient::Interface);
     let value = REPORT_TYPE_FEATURE << 8;
     Ok(handle.read_control(reqtype, HID_GET_REPORT, value, 0, buf, Duration::new(2, 0))?)
 }
 
-pub fn write_frame(handle: &mut DeviceHandle<Context>, frame: &Frame) -> Result<(), YubicoError> {
-    let mut data = unsafe {
-        slice::from_raw_parts(frame as *const Frame as *const u8, 70)
-    };
+pub fn write_frame(handle: &DeviceHandle<Context>, frame: &Frame) -> Result<(), YubicoError> {
+    let mut data = unsafe { slice::from_raw_parts(frame as *const Frame as *const u8, 70) };
 
     let mut seq = 0;
     let mut buf = [0; 8];
@@ -129,7 +134,7 @@ pub fn write_frame(handle: &mut DeviceHandle<Context>, frame: &Frame) -> Result<
 
         if seq == 0 || b.is_empty() || a.iter().any(|&x| x != 0) {
             let mut packet = [0; 8];
-            (&mut packet[ .. 7 ]).copy_from_slice(a);
+            packet[..7].copy_from_slice(a);
 
             packet[7] = Flags::SLOT_WRITE_FLAG.bits() + seq;
             wait(handle, |x| !x.contains(Flags::SLOT_WRITE_FLAG), &mut buf)?;
@@ -141,10 +146,18 @@ pub fn write_frame(handle: &mut DeviceHandle<Context>, frame: &Frame) -> Result<
     Ok(())
 }
 
-pub fn raw_write(handle: &mut DeviceHandle<Context>, packet: &[u8]) -> Result<(), YubicoError> {
+pub fn raw_write(handle: &DeviceHandle<Context>, packet: &[u8]) -> Result<(), YubicoError> {
     let reqtype = request_type(Direction::Out, RequestType::Class, Recipient::Interface);
     let value = REPORT_TYPE_FEATURE << 8;
-    if handle.write_control(reqtype, HID_SET_REPORT, value, 0, &packet, Duration::new(2, 0))? != 8 {
+    if handle.write_control(
+        reqtype,
+        HID_SET_REPORT,
+        value,
+        0,
+        packet,
+        Duration::new(2, 0),
+    )? != 8
+    {
         Err(YubicoError::CanNotWriteToDevice)
     } else {
         Ok(())
@@ -152,16 +165,23 @@ pub fn raw_write(handle: &mut DeviceHandle<Context>, packet: &[u8]) -> Result<()
 }
 
 /// Reset the write state after a read.
-pub fn write_reset(handle: &mut DeviceHandle<Context>) -> Result<(), YubicoError> {
+pub fn write_reset(handle: &DeviceHandle<Context>) -> Result<(), YubicoError> {
     raw_write(handle, &[0, 0, 0, 0, 0, 0, 0, 0x8f])?;
     let mut buf = [0; 8];
     wait(handle, |x| !x.contains(Flags::SLOT_WRITE_FLAG), &mut buf)?;
     Ok(())
 }
 
-pub fn read_response(handle: &mut DeviceHandle<Context>, response:&mut [u8]) -> Result<usize, YubicoError> {
+pub fn read_response(
+    handle: &DeviceHandle<Context>,
+    response: &mut [u8],
+) -> Result<usize, YubicoError> {
     let mut r0 = 0;
-    wait(handle, |f| {f.contains(Flags::RESP_PENDING_FLAG)}, &mut response[.. 8])?;
+    wait(
+        handle,
+        |f| f.contains(Flags::RESP_PENDING_FLAG),
+        &mut response[..8],
+    )?;
     r0 += 7;
     loop {
         if read(handle, &mut response[r0..r0 + 8])? < 8 {
@@ -196,12 +216,12 @@ pub struct Frame {
 impl Frame {
     pub fn new(payload: [u8; DATA_SIZE], command: Command) -> Self {
         let mut f = Frame {
-            payload: payload,
-            command: command,
+            payload,
+            command,
             crc: 0,
             filler: [0; 3],
         };
         f.crc = crc16(&f.payload).to_le();
         f
-    }    
+    }
 }

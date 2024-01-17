@@ -1,6 +1,6 @@
-use std;
+use crate::sec::hmac_sha1;
 use rand::Rng;
-use sec::hmac_sha1;
+use std;
 
 #[derive(Debug)]
 pub struct Hmac(pub [u8; 20]);
@@ -21,7 +21,7 @@ impl std::ops::Deref for Hmac {
 
 impl Hmac {
     pub fn check(&self, key: &HmacKey, challenge: &[u8]) -> bool {
-        &self.0[..] == hmac_sha1(key, challenge)
+        self.0[..] == hmac_sha1(key, challenge)
     }
 }
 
@@ -39,11 +39,11 @@ impl Drop for HmacKey {
 impl HmacKey {
     pub fn from_slice(s: &[u8]) -> Self {
         let mut key = HmacKey([0; 20]);
-        (&mut key.0).clone_from_slice(s);
+        key.0.clone_from_slice(s);
         key
     }
 
-    pub fn generate<R:Rng>(mut rng: R) -> Self {
+    pub fn generate<R: Rng>(mut rng: R) -> Self {
         let mut key = HmacKey([0; 20]);
         for i in key.0.iter_mut() {
             *i = rng.gen()
